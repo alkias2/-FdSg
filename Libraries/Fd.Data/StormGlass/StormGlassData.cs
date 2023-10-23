@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using Fd.Core;
 using Fd.Data.Domain;
 using Fd.Data.Domain.StormGlass;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Fd.Data.StormGlass
@@ -12,13 +14,14 @@ namespace Fd.Data.StormGlass
 			var start = DateTime.UtcNow.Date;
 			return  start.AddDays(dates).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
 		}
+
 	}
 
 	public interface IStormGlassData
 	{
 	
-		SolunarDeserialize? GetSolunar();
-		DeserializeTide? GetTides();
+		SolunarDeserialize? GetSolunar(string timeStart, string timeEnd, Location? location);
+		DeserializeTide? GetTides(string timeStart, string timeEnd, Location? location);
 		DeserializeWeather? GetWeather(string timeStart, string timeEnd, Location? location);
 	}
 
@@ -29,84 +32,107 @@ namespace Fd.Data.StormGlass
 			AUTHORIZATION =
 				"4e744e10-73f9-11ed-a654-0242ac130002-4e744e88-73f9-11ed-a654-0242ac130002"; //ftcalkias@gmail.com
 		private const string SGURL = "https://api.stormglass.io/v2/";
+		private ILogger<StormGlassData> _logger;
 
-		const string lat = "lat=" + "37.9852045790758";
-		const string lng = "lng=" + "23.431340317510962";
+		public StormGlassData(ILogger<StormGlassData> logger) {
+			_logger = logger;
+		}
 
 		public DeserializeWeather? GetWeather(string timeStart, string timeEnd, Location? location) {
 			if(location == null) 
 				return null;
-
-
-			//var start = DateTime.UtcNow;
-			var pStart = timeStart;// UnixDates.SetDate(-2);
-			
-			//var end = start.AddDays(7);
-			var pEnd = timeEnd;// UnixDates.SetDate(7);
-
-			
-
+			List<string> parameters = new List<string>() {
+				"airTemperature",
+				"airTemperature80m",
+				"pressure",
+				"cloudCover",
+				"currentDirection",
+				"currentSpeed",
+				"gust",
+				"seaLevel",
+				"swellDirection",
+				"swellHeight",
+				"swellPeriod",
+				"visibility",
+				"waterTemperature",
+				"waveDirection",
+				"waveHeight",
+				"wavePeriod",
+				"windWaveDirection",
+				"windSpeed",
+			};
 			var weatherToken =
-				$"{SGURL}weather/point?lat={location.Lat.ToString()?.Replace(",", ".")}&lng={location.Lng.ToString()?.Replace(",", ".")}&params=airTemperature,airTemperature80m,pressure,cloudCover,currentDirection,currentSpeed,gust,seaLevel,swellDirection,swellHeight,swellPeriod,visibility,waterTemperature,waveDirection,waveHeight,wavePeriod,windWaveDirection,windSpeed&start={pStart}&end={pEnd}";
+				$"{SGURL}weather/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&params={string.Join(",",parameters)}&start={timeStart}&end={timeEnd}";
+			//var weatherToken =
+			//	$"{SGURL}weather/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&params=airTemperature,airTemperature80m,pressure,cloudCover,currentDirection,currentSpeed,gust,seaLevel,swellDirection,swellHeight,swellPeriod,visibility,waterTemperature,waveDirection,waveHeight,wavePeriod,windWaveDirection,windSpeed&start={timeStart}&end={timeEnd}";
 
 			//return null;
 
 			var response = GetFromStormGlass(weatherToken);
+			if (response != string.Empty) {
+				DeserializeWeather? weather = JsonConvert.DeserializeObject<DeserializeWeather>(response);
 
-			DeserializeWeather? weather = JsonConvert.DeserializeObject<DeserializeWeather>(response);
-
-			return weather;
+				return weather;
+			}
+			return null;
 		}
 
-		public SolunarDeserialize? GetSolunar() {
+		public SolunarDeserialize? GetSolunar(string timeStart, string timeEnd, Location? location) {
 
-			//var start = DateTime.UtcNow;
-			var pStart = UnixDates.SetDate(-2);//  start.AddDays(-2).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+			if (location == null)
+				return null;
 
-			//var end = start.AddDays(7);
-			var pEnd = UnixDates.SetDate(7); //end.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-
-			var astronomicalToken = $"{SGURL}astronomy/point?{lat}&{lng}&start={pStart}&end{pEnd}";
+			var astronomicalToken = $"{SGURL}astronomy/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&start={timeStart}&end{timeEnd}";
 
 			var response = GetFromStormGlass(astronomicalToken);
-			SolunarDeserialize? solunar = JsonConvert.DeserializeObject<SolunarDeserialize>(response);
+			if (response != string.Empty) {
+				SolunarDeserialize? solunar = JsonConvert.DeserializeObject<SolunarDeserialize>(response);
 
-			return solunar;
+				return solunar;
+			}
+			return null;
 		}
 
-		public DeserializeTide? GetTides() {
+		public DeserializeTide? GetTides(string timeStart, string timeEnd, Location? location) {
+			if (location == null)
+				return null;
 
-			//var start = DateTime.UtcNow;
-			var pStart = UnixDates.SetDate(-2);//  start.AddDays(-2).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-
-			//var end = start.AddDays(7);
-			var pEnd = UnixDates.SetDate(7); //end.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-
-			var tidesToken = $"{SGURL}tide/extremes/point?{lat}&{lng}&start={pStart}&end={pEnd}";
+			var tidesToken = $"{SGURL}tide/extremes/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&start={timeStart}&end={timeEnd}";
 
 			var response = GetFromStormGlass(tidesToken);
-			DeserializeTide? dataTide = JsonConvert.DeserializeObject<DeserializeTide>(response);
 
-			return dataTide;
+			if (response != string.Empty) {
+				DeserializeTide? dataTide = JsonConvert.DeserializeObject<DeserializeTide>(response);
+
+				return dataTide;
+			}
+
+			return null;
 		}
 
 
-		private static string GetFromStormGlass(string token)
+		private string GetFromStormGlass(string token)
 		{
-			using var httpClient = new HttpClient();
+			try {
+				using var httpClient = new HttpClient();
 
-			var request = new HttpRequestMessage(HttpMethod.Get, token);
+				var request = new HttpRequestMessage(HttpMethod.Get, token);
 
-			request.Headers.Add("Accept", "application/json");
-			request.Headers.Add("Authorization", AUTHORIZATION);
-			httpClient.Timeout = new TimeSpan(0, 0, 0, 60);
+				request.Headers.Add("Accept", "application/json");
+				request.Headers.Add("Authorization", AUTHORIZATION);
+				httpClient.Timeout = new TimeSpan(0, 0, 0, 24);
 
-			var response = httpClient.Send(request);
+				var response = httpClient.Send(request);
+				using var reader = new StreamReader(response.Content.ReadAsStream());
+				var responseBody = reader.ReadToEnd();
 
-			using var reader = new StreamReader(response.Content.ReadAsStream());
-			var responseBody = reader.ReadToEnd();
-
-			return responseBody;
+				return responseBody;
+			}
+			catch (Exception ex) {
+				_logger.LogError(ex.Message);
+				return string.Empty;
+			}
+			
 		}
 
 		private static string GetFromStormGlassD(string token) {

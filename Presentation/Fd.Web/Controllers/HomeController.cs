@@ -22,11 +22,77 @@ namespace Fd.Web.Controllers {
 
 		public IActionResult Index() {
 
+			//return View();
+
 			var locs = _dataContext.Location.ToList();
 
-			//var mapperConfigurations = typeFinder.FindClassesOfType<BaseEntity>();
+			//assigns year, month, day
+			var startDate = new DateTime(2021, 10, 30);
+			var endDate = new DateTime(2021, 10, 30);
 
-			var weather = _stormGlassData.GetWeather(UnixDates.SetDate(-2), UnixDates.SetDate(-1), locs.First());
+			//var startDate = new DateTime(2023, 10, 23);
+			//var endDate = new DateTime(2023, 10, 23);
+
+			var weather = GetWetherData(startDate, endDate, locs);
+
+			var tides = GetTidesData(startDate, endDate, locs);
+
+			var solunar = GetSolunarData(startDate, endDate, locs);
+
+			return View();
+		}
+
+		private SolunarDeserialize? GetSolunarData(DateTime startDate, DateTime endDate, List<Location> locs) {
+			var solunar = _stormGlassData.GetSolunar(startDate.Floor().ToUnix(), endDate.Ceil().ToUnix(), locs.First());
+			if (solunar != null) {
+				foreach (var sol in solunar.data) {
+					var s = new Solunar {
+						Date = sol?.time,
+						SunRise = sol?.sunrise,
+						SunSet = sol?.sunset,
+						MoonRise = sol?.moonrise,
+						MoonSet = sol?.moonset,
+						MoonFraction = sol?.moonFraction,
+						CivilDawn = sol?.civilDawn,
+						CivilDusk = sol?.civilDusk,
+						MoonClosestName = sol?.moonPhase?.closest?.text,
+						MoonClosestTime = sol?.moonPhase?.closest?.time,
+						MoonClosestValue = sol?.moonPhase?.closest?.value,
+						MoonCurrentName = sol?.moonPhase?.current?.text,
+						MoonCurrentTime = sol?.moonPhase?.current?.time,
+						MoonCurrenttValue = sol?.moonPhase?.current?.value,
+						LocationId = locs.First().Id
+					};
+					_dataContext.Solunar.Add(s);
+				}
+
+				_dataContext.SaveChanges();
+			}
+
+			return solunar;
+		}
+
+		private DeserializeTide? GetTidesData(DateTime startDate, DateTime endDate, List<Location> locs) {
+			var tides = _stormGlassData.GetTides(startDate.Floor().ToUnix(), endDate.Ceil().ToUnix(), locs.First());
+			if (tides != null && tides.data.Any()) {
+				foreach (var tide in tides.data) {
+					var t = new Tide {
+						Height = tide?.height,
+						Date = tide?.time,
+						Type = tide?.type,
+						LocationId = locs.First().Id
+					};
+					_dataContext.Tide.Add(t);
+				}
+
+				_dataContext.SaveChanges();
+			}
+
+			return tides;
+		}
+
+		private DeserializeWeather? GetWetherData(DateTime startDate, DateTime endDate, List<Location> locs) {
+			var weather = _stormGlassData.GetWeather(startDate.Floor().ToUnix(), endDate.Ceil().ToUnix(), locs.First());
 			if (weather != null && weather.hours.Any()) {
 				foreach (var hour in weather.hours) {
 					var w = new Whether {
@@ -54,14 +120,9 @@ namespace Fd.Web.Controllers {
 				}
 
 				_dataContext.SaveChanges();
-
 			}
 
-
-			//var tides = _stormGlassData.GetTides();
-			//var solunar = _stormGlassData.GetSolunar();
-
-			return View();
+			return weather;
 		}
 
 		public IActionResult Privacy()

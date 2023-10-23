@@ -2,14 +2,14 @@
 {
 	public class SolunarDeserialize
 	{
-		public Solunar[] data { get; set; }
+		public SgSolunar[] data { get; set; }
 
 		public SolunarMeta meta { get; set; }
 	}
 
 
 
-	public class Solunar {
+	public class SgSolunar {
 		public DateTime? time { get; set; }
 		public DateTime? astronomicalDawn { get; set; }
 		public DateTime? astronomicalDusk { get; set; }

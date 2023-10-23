@@ -5,7 +5,7 @@ namespace Fd.Data.Domain {
 	public class Solunar : BaseEntity {
 
 		[Display(Name = "Date")]
-		public DateTime Date { get; set; }
+		public DateTime? Date { get; set; }
 		
 		/// <summary>
 		/// Timestamp for sunrise in UTC.Will return null if no sunsrise occurs on the given day
@@ -37,11 +37,11 @@ namespace Fd.Data.Domain {
 
 		public DateTime? CivilDusk { get; set; }
 		
-		public string MoonClosestName { get; set; } 
+		public string? MoonClosestName { get; set; } 
 		public DateTime? MoonClosestTime { get; set; } 
 		public double? MoonClosestValue { get; set; }
 
-		public string MoonCurrentName { get; set; }
+		public string? MoonCurrentName { get; set; }
 		public DateTime? MoonCurrentTime { get; set; }
 		public double? MoonCurrenttValue { get; set; }
 

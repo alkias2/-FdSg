@@ -20,7 +20,8 @@ namespace Fd.Web.Controllers {
 			_dataContext = dataContext;
 		}
 
-		public IActionResult Index() {
+		public IActionResult Index()
+		{
 
 			//return View();
 
@@ -28,29 +29,43 @@ namespace Fd.Web.Controllers {
 
 
 			//assigns year, month, day
-			var startDate = new DateTime(2021, 10, 17);
-			var endDate = new DateTime(2021, 10, 17);
+			var startDate = new DateTime(2021, 11, 21);
+			var endDate = new DateTime(2021, 11, 21);
+			GetWetherData(startDate, endDate, locs);
+			GetTidesData(startDate, endDate, locs);
+			GetSolunarData(startDate, endDate, locs);
 
-			var fishingDate = new DateTime(2021, 10, 17, 20, 33, 53);
-			
-			//var iNow = DateTime.Now;
-			var weatherDates = _dataContext.Whether.Select(x => x.Date).ToList();
-			var closestWeatherDate = weatherDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
-			var fishingWether = _dataContext.Whether.FirstOrDefault(x => x.Date == closestWeatherDate);
 
-			var tideDates = _dataContext.Tide.Select(x => x.Date!.Value).ToList();
-			var closestTimeDate = tideDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
-			var fishinTide = _dataContext.Tide.FirstOrDefault(x => x.Date == closestTimeDate);
+			//var fishingDate = new DateTime(2021, 10, 17, 20, 33, 53);
+			//var catchWhether = WhetherByDay(fishingDate);
+			//var catchTide = TideByDay(fishingDate);
+			//var catchSolunar =	SolunarByDay(fishingDate);
 
+			return View();
+		}
+
+		private Solunar? SolunarByDay(DateTime fishingDate)
+		{
 			var solDates = _dataContext.Solunar.Select(x => x.Date!.Value).ToList();
 			var solClosest = solDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
 			var fishinSolunar = _dataContext.Solunar.FirstOrDefault(x => x.Date == solClosest);
 
-			//GetWetherData(startDate, endDate, locs);
-			//GetTidesData(startDate, endDate, locs);
-			//GetSolunarData(startDate, endDate, locs);
+			return fishinSolunar;
+		}
 
-			return View();
+		private Tide? TideByDay(DateTime fishingDate)
+		{
+			var tideDates = _dataContext.Tide.Select(x => x.Date!.Value).ToList();
+			var closestTimeDate = tideDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
+			var fishinTide = _dataContext.Tide.FirstOrDefault(x => x.Date == closestTimeDate);
+			return fishinTide;
+		}
+
+		private Whether? WhetherByDay(DateTime fishingDate) {
+			var weatherDates = _dataContext.Whether.Select(x => x.Date).ToList();
+			var closestWeatherDate = weatherDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
+			var fishingWether = _dataContext.Whether.FirstOrDefault(x => x.Date == closestWeatherDate);
+			return fishingWether;
 		}
 
 		private SolunarDeserialize? GetSolunarData(DateTime startDate, DateTime endDate, List<Location> locs) {

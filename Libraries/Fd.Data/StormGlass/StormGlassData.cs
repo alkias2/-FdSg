@@ -98,7 +98,17 @@ namespace Fd.Data.StormGlass
 			var response = GetFromStormGlass(astronomicalToken);
 			if (response != string.Empty) {
 				SolunarDeserialize? solunar = JsonConvert.DeserializeObject<SolunarDeserialize>(response);
-				
+
+				_context.SgData.Add(new SgData
+				{
+					StartTime = timeStart.UnixToDtDateTime(),
+					EndTime = timeEnd.UnixToDtDateTime(),
+					Name = "Astronomy",
+					RowData = response,
+					LocationId = location.Id,
+				});
+				_context.SaveChanges();
+
 				return solunar;
 			}
 			return null;
@@ -114,6 +124,16 @@ namespace Fd.Data.StormGlass
 
 			if (response != string.Empty) {
 				DeserializeTide? dataTide = JsonConvert.DeserializeObject<DeserializeTide>(response);
+
+				_context.SgData.Add(new SgData
+				{
+					StartTime = timeStart.UnixToDtDateTime(),
+					EndTime = timeEnd.UnixToDtDateTime(),
+					Name = "tide",
+					RowData = response,
+					LocationId = location.Id,
+				});
+				_context.SaveChanges();
 
 				return dataTide;
 			}

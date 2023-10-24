@@ -115,16 +115,10 @@ namespace Fd.Data.Migrations
                     b.Property<long>("LocationId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("SgSolunarRowData")
-                        .IsRequired()
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SgTideRowData")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SgWhetherRowData")
-                        .IsRequired()
+                    b.Property<string>("RowData")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartTime")
@@ -151,14 +145,13 @@ namespace Fd.Data.Migrations
                     b.Property<DateTime?>("CivilDusk")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<long>("LocationId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("MoonClosestName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("MoonClosestTime")
@@ -168,7 +161,6 @@ namespace Fd.Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("MoonCurrentName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("MoonCurrentTime")
@@ -217,7 +209,6 @@ namespace Fd.Data.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

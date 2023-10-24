@@ -17,6 +17,11 @@ namespace Fd.Core
 			return theDate.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
 		}
 
+		public static DateTime UnixToDtDateTime(this string unixDate) {
+			DateTime dateTime = DateTime.ParseExact(unixDate, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+			return dateTime;
+		}
+
 		public static string ToDotValue(this double value) {
 			return value.ToString(CultureInfo.InvariantCulture).Replace(",", ".");
 		}

@@ -27,15 +27,18 @@ namespace Fd.Data.StormGlass
 
 	public class StormGlassData : IStormGlassData
 	{
-		// const string authorization = "97878a8e-2a46-11ec-bf3f-0242ac130002-97878b88-2a46-11ec-bf3f-0242ac130002";
-		private const string
-			AUTHORIZATION =
-				"4e744e10-73f9-11ed-a654-0242ac130002-4e744e88-73f9-11ed-a654-0242ac130002"; //ftcalkias@gmail.com
+		//private const string AUTHORIZATION = "4e744e10-73f9-11ed-a654-0242ac130002-4e744e88-73f9-11ed-a654-0242ac130002"; //ftcalkias@gmail.com
+		//private const string AUTHORIZATION = "6703f5c2-7181-11ed-bce5-0242ac130002-6703f644-7181-11ed-bce5-0242ac130002"; //mamisma79@gmail.com
+		private const string AUTHORIZATION = "02219784-726d-11ee-8d52-0242ac130002-022197e8-726d-11ee-8d52-0242ac130002"; //alsotez@gmail.com
+
+
 		private const string SGURL = "https://api.stormglass.io/v2/";
 		private ILogger<StormGlassData> _logger;
+		private DataContext _context;
 
-		public StormGlassData(ILogger<StormGlassData> logger) {
+		public StormGlassData(ILogger<StormGlassData> logger, DataContext context) {
 			_logger = logger;
+			_context = context;
 		}
 
 		public DeserializeWeather? GetWeather(string timeStart, string timeEnd, Location? location) {
@@ -46,6 +49,7 @@ namespace Fd.Data.StormGlass
 				"airTemperature80m",
 				"pressure",
 				"cloudCover",
+				"humidity",
 				"currentDirection",
 				"currentSpeed",
 				"gust",
@@ -59,19 +63,26 @@ namespace Fd.Data.StormGlass
 				"waveHeight",
 				"wavePeriod",
 				"windWaveDirection",
+				"windDirection",
 				"windSpeed",
 			};
 			var weatherToken =
 				$"{SGURL}weather/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&params={string.Join(",",parameters)}&start={timeStart}&end={timeEnd}";
-			//var weatherToken =
-			//	$"{SGURL}weather/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&params=airTemperature,airTemperature80m,pressure,cloudCover,currentDirection,currentSpeed,gust,seaLevel,swellDirection,swellHeight,swellPeriod,visibility,waterTemperature,waveDirection,waveHeight,wavePeriod,windWaveDirection,windSpeed&start={timeStart}&end={timeEnd}";
 
 			//return null;
 
 			var response = GetFromStormGlass(weatherToken);
 			if (response != string.Empty) {
 				DeserializeWeather? weather = JsonConvert.DeserializeObject<DeserializeWeather>(response);
-
+				_context.SgData.Add(new SgData
+				{
+					StartTime = timeStart.UnixToDtDateTime(),
+					EndTime = timeEnd.UnixToDtDateTime(),
+					Name = "Whether",
+					RowData = response,
+					LocationId = location.Id,
+				});
+				_context.SaveChanges();
 				return weather;
 			}
 			return null;
@@ -87,7 +98,7 @@ namespace Fd.Data.StormGlass
 			var response = GetFromStormGlass(astronomicalToken);
 			if (response != string.Empty) {
 				SolunarDeserialize? solunar = JsonConvert.DeserializeObject<SolunarDeserialize>(response);
-
+				
 				return solunar;
 			}
 			return null;

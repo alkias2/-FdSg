@@ -27,8 +27,8 @@ namespace Fd.Web.Controllers {
 			var locs = _dataContext.Location.ToList();
 
 			//assigns year, month, day
-			var startDate = new DateTime(2021, 10, 30);
-			var endDate = new DateTime(2021, 10, 30);
+			var startDate = new DateTime(2021, 10, 17);
+			var endDate = new DateTime(2021, 10, 17);
 
 			//var startDate = new DateTime(2023, 10, 23);
 			//var endDate = new DateTime(2023, 10, 23);
@@ -43,7 +43,7 @@ namespace Fd.Web.Controllers {
 		}
 
 		private SolunarDeserialize? GetSolunarData(DateTime startDate, DateTime endDate, List<Location> locs) {
-			var solunar = _stormGlassData.GetSolunar(startDate.Floor().ToUnix(), endDate.Ceil().ToUnix(), locs.First());
+			var solunar = _stormGlassData.GetSolunar(startDate.Floor().ToUniversalTime().ToUnix(), endDate.Ceil().ToUniversalTime().ToUnix(), locs.First());
 			if (solunar != null) {
 				foreach (var sol in solunar.data) {
 					var s = new Solunar {
@@ -73,7 +73,7 @@ namespace Fd.Web.Controllers {
 		}
 
 		private DeserializeTide? GetTidesData(DateTime startDate, DateTime endDate, List<Location> locs) {
-			var tides = _stormGlassData.GetTides(startDate.Floor().ToUnix(), endDate.Ceil().ToUnix(), locs.First());
+			var tides = _stormGlassData.GetTides(startDate.Floor().ToUniversalTime().ToUnix(), endDate.Ceil().ToUniversalTime().ToUnix(), locs.First());
 			if (tides != null && tides.data.Any()) {
 				foreach (var tide in tides.data) {
 					var t = new Tide {
@@ -92,7 +92,7 @@ namespace Fd.Web.Controllers {
 		}
 
 		private DeserializeWeather? GetWetherData(DateTime startDate, DateTime endDate, List<Location> locs) {
-			var weather = _stormGlassData.GetWeather(startDate.Floor().ToUnix(), endDate.Ceil().ToUnix(), locs.First());
+			var weather = _stormGlassData.GetWeather(startDate.Floor().ToUniversalTime().ToUnix(), endDate.Ceil().ToUniversalTime().ToUnix(), locs.First());
 			if (weather != null && weather.hours.Any()) {
 				foreach (var hour in weather.hours) {
 					var w = new Whether {

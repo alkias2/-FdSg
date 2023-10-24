@@ -91,9 +91,8 @@ namespace Fd.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SgWhetherRowData = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SgSolunarRowData = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SgTideRowData = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RowData = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LocationId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -113,7 +112,7 @@ namespace Fd.Data.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SunRise = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SunSet = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MoonRise = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -121,10 +120,10 @@ namespace Fd.Data.Migrations
                     MoonFraction = table.Column<double>(type: "float", nullable: true),
                     CivilDawn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CivilDusk = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    MoonClosestName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MoonClosestName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MoonClosestTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MoonClosestValue = table.Column<double>(type: "float", nullable: true),
-                    MoonCurrentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MoonCurrentName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MoonCurrentTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MoonCurrenttValue = table.Column<double>(type: "float", nullable: true),
                     LocationId = table.Column<long>(type: "bigint", nullable: false)
@@ -148,7 +147,7 @@ namespace Fd.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Height = table.Column<double>(type: "float", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LocationId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>

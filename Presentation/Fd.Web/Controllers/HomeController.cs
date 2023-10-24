@@ -26,18 +26,29 @@ namespace Fd.Web.Controllers {
 
 			var locs = _dataContext.Location.ToList();
 
+
 			//assigns year, month, day
 			var startDate = new DateTime(2021, 10, 17);
 			var endDate = new DateTime(2021, 10, 17);
 
-			//var startDate = new DateTime(2023, 10, 23);
-			//var endDate = new DateTime(2023, 10, 23);
+			var fishingDate = new DateTime(2021, 10, 17, 20, 33, 53);
+			
+			//var iNow = DateTime.Now;
+			var weatherDates = _dataContext.Whether.Select(x => x.Date).ToList();
+			var closestWeatherDate = weatherDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
+			var fishingWether = _dataContext.Whether.FirstOrDefault(x => x.Date == closestWeatherDate);
 
-			var weather = GetWetherData(startDate, endDate, locs);
+			var tideDates = _dataContext.Tide.Select(x => x.Date!.Value).ToList();
+			var closestTimeDate = tideDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
+			var fishinTide = _dataContext.Tide.FirstOrDefault(x => x.Date == closestTimeDate);
 
-			var tides = GetTidesData(startDate, endDate, locs);
+			var solDates = _dataContext.Solunar.Select(x => x.Date!.Value).ToList();
+			var solClosest = solDates.ArgMin(iTime => Math.Abs((iTime - fishingDate).Ticks));
+			var fishinSolunar = _dataContext.Solunar.FirstOrDefault(x => x.Date == solClosest);
 
-			var solunar = GetSolunarData(startDate, endDate, locs);
+			//GetWetherData(startDate, endDate, locs);
+			//GetTidesData(startDate, endDate, locs);
+			//GetSolunarData(startDate, endDate, locs);
 
 			return View();
 		}

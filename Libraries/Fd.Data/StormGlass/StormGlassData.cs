@@ -28,8 +28,8 @@ namespace Fd.Data.StormGlass
 	public class StormGlassData : IStormGlassData
 	{
 		//private const string AUTHORIZATION = "4e744e10-73f9-11ed-a654-0242ac130002-4e744e88-73f9-11ed-a654-0242ac130002"; //ftcalkias@gmail.com
-		//private const string AUTHORIZATION = "6703f5c2-7181-11ed-bce5-0242ac130002-6703f644-7181-11ed-bce5-0242ac130002"; //mamisma79@gmail.com
-		private const string AUTHORIZATION = "02219784-726d-11ee-8d52-0242ac130002-022197e8-726d-11ee-8d52-0242ac130002"; //alsotez@gmail.com
+		private const string AUTHORIZATION = "6703f5c2-7181-11ed-bce5-0242ac130002-6703f644-7181-11ed-bce5-0242ac130002"; //mamisma79@gmail.com
+		//private const string AUTHORIZATION = "02219784-726d-11ee-8d52-0242ac130002-022197e8-726d-11ee-8d52-0242ac130002"; //alsotez@gmail.com
 
 
 		private const string SGURL = "https://api.stormglass.io/v2/";
@@ -119,8 +119,16 @@ namespace Fd.Data.StormGlass
 				return null;
 
 			var tidesToken = $"{SGURL}tide/extremes/point?lat={location.Lat.ToDotValue()}&lng={location.Lng.ToDotValue()}&start={timeStart}&end={timeEnd}";
-
 			var response = GetFromStormGlass(tidesToken);
+
+			//        var getTideFromDb = _context.SgData.Where(t => 
+			//            t.StartTime == timeStart.UnixToDtDateTime()
+			//            && t.Name == "Tide"
+			//&& t.EndTime == timeEnd.UnixToDtDateTime())
+			//            .OrderBy(t=>t.Id).ToList()
+			//            .LastOrDefault();
+
+			//        var response = getTideFromDb?.RowData;
 
 			if (response != string.Empty) {
 				DeserializeTide? dataTide = JsonConvert.DeserializeObject<DeserializeTide>(response);
